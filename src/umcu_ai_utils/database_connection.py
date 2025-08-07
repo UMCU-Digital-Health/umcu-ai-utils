@@ -8,22 +8,23 @@ logger = logging.getLogger(__name__)
 
 
 def get_connection_string(
-    env: str | None = None,
-    db_user: str | None = None,
-    db_passwd: str | None = None,
-    db_host: str | None = None,
-    db_port: str | None = None,
-    db_database: str | None = None,
-    schema_name: str | None = None,
-) -> tuple[str, Optional[dict]]:
-    """Get the connection string from the environment variables
-
-    Optionally use the parameters to override the environment variables
-
+        use_debug_sqlite: bool = False,
+        db_env: str | None = None,
+        db_user: str | None = None,
+        db_passwd: str | None = None,
+        db_host: str | None = None,
+        db_port: str | None = None,
+        db_database: str | None = None,        
+        schema_name: str | None = None,
+) -> tuple[str, Optional[dict]]: 
+    """Get the connection string from the environment variables    
     Parameters
     ----------
-    env : str, optional
-        The environment to use, by default "None", alternatively 'ACC' or 'PROD'
+    use_debug_sqlite : bool, optional
+        If True, use the SQLite debug database, by default False
+        If True, the other parameters are ignored
+    db_env : str, optional
+        The Posit Connect database environment to use, by default "None", alternatively 'ACC' or 'PROD'
         If None, the default environment configured in the environment variables is used
     db_user : str, optional
         Username of the service account, by default None
@@ -47,14 +48,14 @@ def get_connection_string(
     db_user = db_user or os.getenv("DB_USER", "")
     db_passwd = db_passwd or os.getenv("DB_PASSWD")
     db_port = db_port or os.getenv("DB_PORT")
-    if env is None:
+    if db_env is None:
         db_host = db_host or os.getenv("DB_HOST")
         db_database = db_database or os.getenv("DB_DATABASE")
-    elif env == "ACC" or env == "PROD":
-        db_host = db_host or os.getenv(f"DB_HOST_{env}")
-        db_database = db_database or os.getenv(f"DB_DATABASE_{env}")
+    elif db_env == "ACC" or db_env == "PROD":
+        db_host = db_host or os.getenv(f"DB_HOST_{db_env}")
+        db_database = db_database or os.getenv(f"DB_DATABASE_{db_env}")
     else:
-        raise ValueError(f"Invalid environment: {env}")
+        raise ValueError(f"Invalid environment: {db_env}")
 
     if db_user == "":
         logger.warning("Using debug SQLite database...")

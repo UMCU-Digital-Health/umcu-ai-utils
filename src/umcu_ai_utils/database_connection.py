@@ -39,11 +39,11 @@ def get_connection_string(
     db_passwd : str, optional
         Password for the database. If None, uses DB_PASSWD from environment.
     db_host : str, optional
-        Host for the database. If None, uses DB_HOST or DB_HOST_{db_env} from environment.
+        Host for the database. If None, uses DB_HOST or DB_HOST_{db_env} from .env
     db_port : str, optional
-        Port for the database. If None, uses DB_PORT from environment.
+        Port for the database. If None, uses DB_PORT from .env
     db_database : str, optional
-        Database name. If None, uses DB_DATABASE or DB_DATABASE_{db_env} from environment.
+        Database name. If None, uses DB_DATABASE or DB_DATABASE_{db_env} from .env
 
     Returns
     -------

@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from sqlalchemy.engine import Engine
 
@@ -14,10 +12,9 @@ def test_get_connection_string_sqlite():
     assert exec_opts == {"schema_translate_map": {"test_schema": None}}
 
 
-def test_get_connection_string_missing_params():
-    # Unset env vars
+def test_get_connection_string_missing_params(monkeypatch):
     for var in ["DB_USER", "DB_PASSWD", "DB_HOST", "DB_PORT", "DB_DATABASE"]:
-        os.environ.pop(var, None)
+        monkeypatch.delenv(var, raising=False)
     with pytest.raises(ValueError) as exc:
         database_connection.get_connection_string()
     assert "Database connection parameters are not all set" in str(exc.value)

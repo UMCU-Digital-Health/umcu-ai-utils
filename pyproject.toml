@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "umcu_ai_utils"
-version = "0.2.2"
+version = "0.2.3"
 authors = [
   { name="AI for Health", email="r.peters-7@umcutrecht.nl" },
 ]

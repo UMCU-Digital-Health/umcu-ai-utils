@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Literal, Optional
 
 from sqlalchemy import Engine, create_engine
 
@@ -8,9 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_connection_string(
-    use_debug_sqlite: bool = False,
+    db_env: Literal["DEBUG", "ACC", "PROD"] | None = None,
     schema_name: str | None = None,
-    db_env: str | None = None,
     db_user: str | None = None,
     db_passwd: str | None = None,
     db_host: str | None = None,
@@ -27,13 +26,11 @@ def get_connection_string(
 
     Parameters
     ----------
-    use_debug_sqlite : bool, optional
-        If True, use the SQLite debug database. Other parameters are ignored.
+    db_env : str, optional
+        The database environment to use ('DEBUG','ACC', 'PROD', or None).
+        If None, uses general (not acc/prod) database environment variables.
     schema_name : str, optional
         The schema name of the database. Used for schema translation in SQLite.
-    db_env : str, optional
-        The database environment to use ('ACC', 'PROD', or None).
-        If None, uses default environment variables.
     db_user : str, optional
         Username for the database. If None, uses DB_USER from environment.
     db_passwd : str, optional
@@ -50,9 +47,10 @@ def get_connection_string(
     tuple[str, Optional[dict]]
         The connection string and optional execution options for SQLAlchemy.
     """
-    if use_debug_sqlite:
+    if db_env == "DEBUG":
+        if schema_name is None:
+            raise ValueError("Schema name must be provided for debug SQLite database.")
         logger.warning("Using debug SQLite database...")
-
         return "sqlite:///./sql_app.db", {"schema_translate_map": {schema_name: None}}
 
     db_user = db_user or os.getenv("DB_USER", None)
@@ -80,8 +78,9 @@ def get_connection_string(
     ):
         raise ValueError(
             "Database connection parameters are not all set. "
-            "Please set DB_USER, DB_PASSWD, DB_HOST, DB_PORT, and DB_DATABASE "
-            "environment variables or pass directly as parameters."
+            f"DB_USER={db_user}, DB_PASSWD={db_passwd}, DB_HOST={db_host}, "
+            f"DB_PORT={db_port}, DB_DATABASE={db_database}. Please set "
+            "the required environment variables or pass them directly as parameters."
         )
 
     return (
@@ -92,32 +91,29 @@ def get_connection_string(
 
 def get_engine(
     connection_str: str | None = None,
-    db_env: str | None = None,
-    use_debug_sqlite: bool = False,
+    db_env: Literal["DEBUG", "ACC", "PROD"] | None = None,
     schema_name: str | None = None,
 ) -> Engine:
     """Get the SQLAlchemy engine.
 
-    Three ways of using this function:
+    Two ways of using this function:
     1. Input the connection string directly and get the engine directly
-    2. Specify the database environment and get the connection string derived from the
-    environment variables in the .env file
-    3. Use the debug SQLite database by setting use_debug_sqlite to True and specifying
-    the schema name (as the local SQLite database does not have a schema)
+    2. Specify the database environment and get the connection string from
+        get_connection_string()
+        --> if db_env is set to DEBUG, then specify the schema_name
 
     Parameters
     ----------
     connection_str : str, optional
         The connection string to the database, by default None
-    db_env : str, optional
-        The environment to use, by default None, alternatively 'ACC' or 'PROD'
-        If None, the default environment configured in the environment variables is used
-        Only used when connection_str is None
-    use_debug_sqlite : bool, optional
-        If True, use the SQLite debug database, by default False
+    db_env : Literal["DEBUG", "ACC", "PROD"] | None = None,
+        The environment to use, by default None, alternatively 'DEBUG', 'ACC' or 'PROD'
+        If None then the database connection variables are derived
+        from the environment variables
     schema_name : str, optional
         The schema name of the database, by default None.
-        Only needs to be set to remove it when using the SQLite debug database.
+        Only needs to be set to remove it when using the SQLite debug database by
+        defining db_env as DEBUG.
 
     Returns
     -------
@@ -126,9 +122,9 @@ def get_engine(
     """
     if connection_str is not None:  # option 1
         connection_str, execution_options = connection_str, None
-    else:  # option 2 or 3
+    else:  # option 2
         connection_str, execution_options = get_connection_string(
-            use_debug_sqlite=use_debug_sqlite, schema_name=schema_name, db_env=db_env
+            db_env=db_env, schema_name=schema_name
         )
 
     return create_engine(

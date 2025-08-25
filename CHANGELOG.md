@@ -7,13 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.1] - 2025-08-20
+## [0.2.2] - 2025-08-20
 
 ### Added
 - Added a pipeline to publish package to PyPI
 
 ### Changed
 - Changed to build backend to uv_build
+
+## [0.2.1] - 2025-08-25
+
+### Changed
+- changed some logic with the database connection so that the way of use is more streamlined.
+- changed the error messages in the database connection to be more user-friendly and understandable.
 
 ## [0.2.0] - 2025-08-06
 

@@ -6,7 +6,7 @@ from umcu_ai_utils import database_connection
 
 def test_get_connection_string_sqlite():
     conn_str, exec_opts = database_connection.get_connection_string(
-        use_debug_sqlite=True, schema_name="test_schema"
+        db_env="DEBUG", schema_name="test_schema"
     )
     assert conn_str.startswith("sqlite:///"), "Should use SQLite connection string"
     assert exec_opts == {"schema_translate_map": {"test_schema": None}}
@@ -32,9 +32,7 @@ def test_get_connection_string_valid(monkeypatch):
 
 
 def test_get_engine_sqlite():
-    engine = database_connection.get_engine(
-        use_debug_sqlite=True, schema_name="test_schema"
-    )
+    engine = database_connection.get_engine(db_env="DEBUG", schema_name="test_schema")
     assert isinstance(engine, Engine)
     assert str(engine.url).startswith("sqlite:///"), "Engine should use SQLite URL"
 

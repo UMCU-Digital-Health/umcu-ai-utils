@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Literal, Optional
 
 from sqlalchemy import Engine, create_engine
 
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_connection_string(
-    db_env: str | None = None,
+    db_env: Literal["DEBUG", "ACC", "PROD"] | None = None,
     schema_name: str | None = None,
     db_user: str | None = None,
     db_passwd: str | None = None,
@@ -91,7 +91,7 @@ def get_connection_string(
 
 def get_engine(
     connection_str: str | None = None,
-    db_env: str | None = None,
+    db_env: Literal["DEBUG", "ACC", "PROD"] | None = None,
     schema_name: str | None = None,
 ) -> Engine:
     """Get the SQLAlchemy engine.
@@ -106,10 +106,10 @@ def get_engine(
     ----------
     connection_str : str, optional
         The connection string to the database, by default None
-    db_env : str, optional
+    db_env : Literal["DEBUG", "ACC", "PROD"] | None = None,
         The environment to use, by default None, alternatively 'DEBUG', 'ACC' or 'PROD'
-        If None then the environment variables for the database connection are derived
-        from .env file
+        If None then the database connection variables are derived
+        from the environment variables
     schema_name : str, optional
         The schema name of the database, by default None.
         Only needs to be set to remove it when using the SQLite debug database by

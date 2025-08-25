@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "umcu_ai_utils"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
   { name="AI for Health", email="r.peters-7@umcutrecht.nl" },
 ]

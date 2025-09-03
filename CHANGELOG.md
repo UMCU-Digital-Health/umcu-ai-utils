@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2025-09-03
+
+### Changed
+- changed the typehinting for the db_env in the database_connection and moved the logic calling os.getenv("DB_ENVIRONMENT") to inside the function.
+
 ## [0.2.3] - 2025-08-25
 
 ### Changed

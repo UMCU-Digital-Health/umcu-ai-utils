@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Literal, Optional
 
 from sqlalchemy import Engine, create_engine
 
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_connection_string(
-    db_env: str | None = None,
+    db_env: Literal["DEBUG", "ACC", "PROD"] | None = None,
     schema_name: str | None = None,
     db_user: str | None = None,
     db_passwd: str | None = None,
@@ -26,7 +26,7 @@ def get_connection_string(
 
     Parameters
     ----------
-    db_env : str, optional
+    db_env : Literal["DEBUG", "ACC", "PROD"] | None, optional
         The database environment to use ('DEBUG','ACC', 'PROD', or None).
         If None, uses general (not acc/prod) database environment variables.
     schema_name : str, optional
@@ -91,7 +91,7 @@ def get_connection_string(
 
 def get_engine(
     connection_str: str | None = None,
-    db_env: str | None = None,
+    db_env: Literal["DEBUG", "ACC", "PROD"] | None = None,
     schema_name: str | None = None,
 ) -> Engine:
     """Get the SQLAlchemy engine.
@@ -106,8 +106,8 @@ def get_engine(
     ----------
     connection_str : str, optional
         The connection string to the database, by default None
-    db_env : str, optional
-        The environment to use, by default None, alternatively 'ACC' or 'PROD'
+    db_env : Literal["DEBUG", "ACC", "PROD"] | None, optional
+        The environment to use, by default None, alternatively 'ACC', 'PROD', or 'DEBUG'
         If None, the default environment configured in the environment variables is used
         Only used when connection_str is None
     schema_name : str, optional

@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_connection_string(
-    db_env: str | None = None,
+    use_debug_sqlite: bool = False,
     schema_name: str | None = None,
     db_user: str | None = None,
     db_passwd: str | None = None,
@@ -47,14 +47,7 @@ def get_connection_string(
     tuple[str, Optional[dict]]
         The connection string and optional execution options for SQLAlchemy.
     """
-    db_env = db_env or os.getenv("DB_ENVIRONMENT", None)
-
-    if db_env not in ["DEBUG", "ACC", "PROD", None]:
-        raise ValueError(f"Invalid DB_ENVIRONMENT: {db_env}")
-
-    if db_env == "DEBUG":
-        if schema_name is None:
-            raise ValueError("Schema name must be provided for debug SQLite database.")
+    if use_debug_sqlite:
         logger.warning("Using debug SQLite database...")
         return "sqlite:///./sql_app.db", {"schema_translate_map": {schema_name: None}}
 
@@ -94,6 +87,7 @@ def get_connection_string(
 def get_engine(
     connection_str: str | None = None,
     db_env: str | None = None,
+    use_debug_sqlite: bool = False,
     schema_name: str | None = None,
 ) -> Engine:
     """Get the SQLAlchemy engine.
@@ -108,10 +102,12 @@ def get_engine(
     ----------
     connection_str : str, optional
         The connection string to the database, by default None
-    db_env : str | None = None,
-        The environment to use, by default None, alternatively 'DEBUG', 'ACC' or 'PROD'
-        If None then the database connection variables are derived
-        from the environment variables
+    db_env : str, optional
+        The environment to use, by default None, alternatively 'ACC' or 'PROD'
+        If None, the default environment configured in the environment variables is used
+        Only used when connection_str is None
+    use_debug_sqlite : bool, optional
+        If True, use the SQLite debug database, by default False
     schema_name : str, optional
         The schema name of the database, by default None.
         Only needs to be set to remove it when using the SQLite debug database by

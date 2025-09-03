@@ -7,11 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.2] - 2025-08-25
+## [0.2.4] - 2025-09-03
 
 ### Changed
 - changed the typehinting for the db_env in the database_connection and moved the logic calling od.get_env("DB_ENVIRONMENT") to inside the function.
 
+## [0.2.3] - 2025-08-25
+
+### Changed
+- Updated publish pipeline to use trusted publishing, see also: https://github.com/astral-sh/trusted-publishing-examples/blob/main/.github/workflows/release.yml
+
+## [0.2.2] - 2025-08-20
+
+### Added
+- Added a pipeline to publish package to PyPI
+
+### Changed
+- Changed to build backend to uv_build
 
 ## [0.2.1] - 2025-08-25
 

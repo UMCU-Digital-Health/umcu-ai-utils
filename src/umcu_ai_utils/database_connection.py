@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Literal, Optional
 
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import URL, Engine, create_engine
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ def get_connection_string(
     db_host: str | None = None,
     db_port: str | None = None,
     db_database: str | None = None,
-) -> tuple[str, Optional[dict]]:
+) -> tuple[URL, Optional[dict]]:
     """Get the connection string for the database.
 
     Two options:
@@ -44,25 +44,26 @@ def get_connection_string(
 
     Returns
     -------
-    tuple[str, Optional[dict]]
+    tuple[URL, Optional[dict]]
         The connection string and optional execution options for SQLAlchemy.
     """
-    db_env = db_env or os.getenv("DB_ENVIRONMENT", None)
+    db_environment = db_env or os.getenv("DB_ENVIRONMENT", None)
 
-    if db_env not in ["DEBUG", "ACC", "PROD", None]:
-        raise ValueError(f"Invalid DB_ENVIRONMENT: {db_env}")
+    if db_environment not in ["DEBUG", "ACC", "PROD", None]:
+        raise ValueError(f"Invalid DB_ENVIRONMENT: {db_environment}")
 
-    if db_env == "DEBUG":
+    if db_environment == "DEBUG":
         logger.warning("Using debug SQLite database...")
-        return "sqlite:///./sql_app.db", {"schema_translate_map": {schema_name: None}}
+        connection_string = URL.create("sqlite", database="./sql_app.db")
+        return connection_string, {"schema_translate_map": {schema_name: None}}
 
     db_user = db_user or os.getenv("DB_USER", None)
     db_passwd = db_passwd or os.getenv("DB_PASSWD", None)
     db_port = db_port or os.getenv("DB_PORT", None)
 
-    if db_env in ("ACC", "PROD"):
-        db_host = db_host or os.getenv(f"DB_HOST_{db_env}")
-        db_database = db_database or os.getenv(f"DB_DATABASE_{db_env}")
+    if db_environment in ("ACC", "PROD"):
+        db_host = db_host or os.getenv(f"DB_HOST_{db_environment}")
+        db_database = db_database or os.getenv(f"DB_DATABASE_{db_environment}")
     else:  # general / unspecified
         db_host = db_host or os.getenv("DB_HOST")
         db_database = db_database or os.getenv("DB_DATABASE")
@@ -76,21 +77,31 @@ def get_connection_string(
         or db_port is None
         or db_database is None
     ):
+        redacted_passwd = "****" if db_passwd else None
         raise ValueError(
             "Database connection parameters are not all set. "
-            f"DB_USER={db_user}, DB_PASSWD={db_passwd}, DB_HOST={db_host}, "
+            f"DB_USER={db_user}, DB_PASSWD={redacted_passwd}, DB_HOST={db_host}, "
             f"DB_PORT={db_port}, DB_DATABASE={db_database}. Please set "
             "the required environment variables or pass them directly as parameters."
         )
 
+    connection_string = URL.create(
+        "mssql+pymssql",
+        username=db_user,
+        password=db_passwd,
+        host=db_host,
+        port=int(db_port),
+        database=db_database,
+    )
+
     return (
-        f"mssql+pymssql://{db_user}:{db_passwd}@{db_host}:{db_port}/{db_database}",
+        connection_string,
         None,
     )
 
 
 def get_engine(
-    connection_str: str | None = None,
+    connection_str: str | URL | None = None,
     db_env: Literal["DEBUG", "ACC", "PROD"] | None = None,
     schema_name: str | None = None,
 ) -> Engine:

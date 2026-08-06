@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-08-06
+
+### Changed
+- Use SQLAlchemy URL for creating connection strings, so special characters (like @) are escaped
+- Hide password in Exception if some env vars are not present
+
 ## [0.2.4] - 2025-09-03
 
 ### Changed

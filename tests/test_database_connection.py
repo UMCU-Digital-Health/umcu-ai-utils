@@ -8,7 +8,7 @@ def test_get_connection_string_sqlite():
     conn_str, exec_opts = database_connection.get_connection_string(
         db_env="DEBUG", schema_name="test_schema"
     )
-    assert conn_str.startswith("sqlite:///"), "Should use SQLite connection string"
+    assert conn_str.render_as_string(hide_password=False) == "sqlite:///./sql_app.db"
     assert exec_opts == {"schema_translate_map": {"test_schema": None}}
 
 
@@ -27,8 +27,38 @@ def test_get_connection_string_valid(monkeypatch):
     monkeypatch.setenv("DB_PORT", "1433")
     monkeypatch.setenv("DB_DATABASE", "db")
     conn_str, exec_opts = database_connection.get_connection_string()
-    assert conn_str == "mssql+pymssql://user:pass@host:1433/db"
+    assert (
+        conn_str.render_as_string(hide_password=False)
+        == "mssql+pymssql://user:pass@host:1433/db"
+    )
     assert exec_opts is None
+
+
+def test_escape_special_characters_in_connection_string(monkeypatch):
+    """Test that special characters in the password are properly escaped"""
+    monkeypatch.setenv("DB_USER", "user")
+    monkeypatch.setenv("DB_PASSWD", "p@ssw:rd")  # Special characters
+    monkeypatch.setenv("DB_HOST", "host")
+    monkeypatch.setenv("DB_PORT", "1433")
+    monkeypatch.setenv("DB_DATABASE", "db")
+    conn_str, exec_opts = database_connection.get_connection_string()
+    assert (
+        conn_str.render_as_string(hide_password=False)
+        == "mssql+pymssql://user:p%40ssw%3Ard@host:1433/db"
+    )
+    assert exec_opts is None
+
+
+def test_no_password_in_error_message(monkeypatch):
+    """Test that the password is not shown in the error message"""
+    monkeypatch.delenv("DB_USER", raising=False)
+    monkeypatch.setenv("DB_PASSWD", "secret")
+    monkeypatch.delenv("DB_HOST", raising=False)
+    monkeypatch.delenv("DB_PORT", raising=False)
+    monkeypatch.delenv("DB_DATABASE", raising=False)
+    with pytest.raises(ValueError) as exc:
+        database_connection.get_connection_string()
+    assert "DB_PASSWD=****" in str(exc.value)
 
 
 def test_get_engine_sqlite():

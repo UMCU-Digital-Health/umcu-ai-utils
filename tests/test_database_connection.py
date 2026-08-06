@@ -34,9 +34,8 @@ def test_get_connection_string_valid(monkeypatch):
     assert exec_opts is None
 
 
-def test_escape_special_characters_in_connection_string():
+def test_escape_special_characters_in_connection_string(monkeypatch):
     """Test that special characters in the password are properly escaped"""
-    monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setenv("DB_USER", "user")
     monkeypatch.setenv("DB_PASSWD", "p@ssw:rd")  # Special characters
     monkeypatch.setenv("DB_HOST", "host")
@@ -48,6 +47,18 @@ def test_escape_special_characters_in_connection_string():
         == "mssql+pymssql://user:p%40ssw%3Ard@host:1433/db"
     )
     assert exec_opts is None
+
+
+def test_no_password_in_error_message(monkeypatch):
+    """Test that the password is not shown in the error message"""
+    monkeypatch.delenv("DB_USER", raising=False)
+    monkeypatch.setenv("DB_PASSWD", "secret")
+    monkeypatch.delenv("DB_HOST", raising=False)
+    monkeypatch.delenv("DB_PORT", raising=False)
+    monkeypatch.delenv("DB_DATABASE", raising=False)
+    with pytest.raises(ValueError) as exc:
+        database_connection.get_connection_string()
+    assert "DB_PASSWD=****" in str(exc.value)
 
 
 def test_get_engine_sqlite():

@@ -115,8 +115,9 @@ def get_engine(
 
     Parameters
     ----------
-    connection_str : str, optional
-        The connection string to the database, by default None
+    connection_str : str | URL, optional
+        The connection string to the database or a SQLAlchemy URL object,
+        by default None
     db_env : Literal["DEBUG", "ACC", "PROD"] | None, optional
         The environment to use, by default None, alternatively 'ACC', 'PROD', or 'DEBUG'
         If None, the default environment configured in the environment variables is used

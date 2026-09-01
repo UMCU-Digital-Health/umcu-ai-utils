@@ -1369,8 +1369,14 @@ wheels = [
 name = "umcu-ai-utils"
 version = "0.3.0"
 source = { editable = "." }
-dependencies = [
+
+[package.optional-dependencies]
+dash = [
+    { name = "dash" },
     { name = "dash-bootstrap-components" },
+]
+sqlalchemy = [
+    { name = "sqlalchemy" },
 ]
 
 [package.dev-dependencies]
@@ -1378,21 +1384,26 @@ dev = [
     { name = "matplotlib" },
     { name = "pytest" },
     { name = "pytest-cov" },
-    { name = "sqlalchemy" },
+    { name = "umcu-ai-utils", extra = ["dash", "sqlalchemy"] },
 ]
 lint = [
     { name = "ruff" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "dash-bootstrap-components", specifier = ">=2.0.4" }]
+requires-dist = [
+    { name = "dash", marker = "extra == 'dash'", specifier = ">=4.4.1" },
+    { name = "dash-bootstrap-components", marker = "extra == 'dash'", specifier = ">=2.0.4" },
+    { name = "sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = ">=2.0.42" },
+]
+provides-extras = ["dash", "sqlalchemy"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "matplotlib", specifier = ">=3.10.3" },
     { name = "pytest", specifier = ">=8.0.1" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
-    { name = "sqlalchemy", specifier = ">=2.0.42" },
+    { name = "umcu-ai-utils", extras = ["dash", "sqlalchemy"], editable = "." },
 ]
 lint = [{ name = "ruff", specifier = ">=0.7.1" }]
 

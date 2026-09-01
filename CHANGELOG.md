@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-28
+
+### Added
+- Added a general UI navbar with the logo and UMCU colors.
+- Added the get_email functionality from Posit Connect
+
 ## [0.2.5] - 2026-08-06
 
 ### Changed
